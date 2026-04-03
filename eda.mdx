@@ -1,0 +1,33 @@
+---
+title: "Exploratory Data Analysis (EDA)"
+description: "Uncovering cyclic demand patterns, spatial clustering, and temporal anomalies in Chicago transit."
+---
+
+# Exploratory Data Analysis (EDA)
+
+Before feeding the data to complex architectures like the Temporal Fusion Transformer, it is crucial to understand the intrinsic behavior of the transit network. Our Exploratory Data Analysis (`02eda.ipynb`) identifies the core patterns that drive ride-hailing demand across Chicago.
+
+## The Rhythm of the City
+
+Rideshare demand is not a uniform distribution; it pulses with the life of the city. We extract rich temporal features (Hour, Day of Week, Month) to analyze this rhythm.
+
+### Hourly and Daily Cadence
+By visualizing daily trip volumes and day-of-week patterns, we observe standard urban commuting structures. 
+- The demand scales up heavily towards the **weekend**. Thursday, Friday, and Saturday evenings capture the majority of leisure travel demand.
+- The **Hour x Day of Week** heatmap clearly demarcates morning commuter peaks (rush hour) on weekdays, juxtaposed against late-night weekend drinking hours.
+
+### Distribution Dimensions
+- **Trip Duration & Distance**: The data shows heavily right-skewed distributions. Most trips are short, localized hops (under 5 miles and 20 minutes), while airport runs form the long-tail element.
+- **Fares & Tipping**: Tipping behavior maintains a strong correlation with trip distance, specialized zones (e.g., airport routes), and weather conditions.
+
+## Spatial Concentrations
+
+The "Where" is just as important as the "When". 
+- **Top Pickup Areas**: The Loop, River North, and O'Hare International Airport dominate the pickup frequencies.
+- **Interactive Scatter Mapping**: By isolating a 500,000 trip sample, we plotted distinct spatial densities. The spatial clusters align perfectly with commercial hubs, transit arteries, and entertainment districts, leading directly to the necessity of Uber's H3 spatial indexes for granular modeling.
+
+## Anomalies and External Factors
+
+Standard cyclical patterns fail during major events:
+- **Holidays**: Analysis of the Christmas and New Year's Eve temporal slices reveals a massive distortion in standard hourly distributions. Demand spikes exponentially right after midnight on New Year's Eve, necessitating specialized holiday boolean features.
+- Our findings here strongly motivated the integration of weather metrics and holiday calendars, as baseline lag features cannot capture irregular exogenous shocks.

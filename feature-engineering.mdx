@@ -1,0 +1,29 @@
+---
+title: "Feature Engineering Pipeline"
+description: "Encoding temporal cycles, calculating historical lag features, and applying spatial dynamics."
+---
+
+# Feature Engineering Pipeline
+
+The predictive power of our models heavily relies on extracting hidden correlations via the Feature Engineering phase, thoroughly detailed in `05feature_eng.ipynb`. This phase shifts the methodology from purely descriptive analytics to actionable forecasting dynamics.
+
+## Temporal Features and Cyclical Encoding
+
+Since time-series demand models intrinsically depend on rhythms, absolute numbers (like "Hour 23") are mathematically counterproductive for regression models because they fail to represent distance properly (i.e., Hour 23 is right next to Hour 0, but linearly they are far apart).
+
+We convert temporal strings into cyclic mathematical distributions:
+- **Sine & Cosine Transformations**: Hours and months are decomposed into strict geometric coordinates `[sin(hour), cos(hour)]`. This preserves the cyclical continuum of day-to-day transitions over midnight.
+
+## Historical Lag Windows
+Deep learning systems require memory. We systematically inject past behavior explicitly onto the same row as the future target:
+- **Direct Lags (T-1, T-2, T-3)**: Explicit columns demonstrating demand precisely hours prior.
+- **Rolling Windows**: Rolling Mean (MA-7, MA-24), Standard Deviation, and Max features smoothing over historical context matrices to absorb transient volatility.
+- **Relative Benchmark Lag**: The "Same Hour, Last Week" `(T-168)` feature acts as a foundational autoregressive baseline, successfully matching expected workday structural bounds.
+
+## Cross-Interactions & Spatial Features
+
+Linear algorithms struggle to organically deduce multi-dimensional interaction. 
+- Combining boolean attributes natively generates complex rules (e.g., `Rush_Hour_AND_Holiday`, `Late_Night_AND_Weekend`).
+- **Dynamic Cell Identification**: By merging spatial H3 definitions into historical metrics, we tag and encode highly resilient attributes pointing out "O'Hare Airport Nodes" scaling completely differently than "Residential Outskirt Nodes." 
+
+All engineering operations adhere to strict vectorized Pandas algorithms to ensure inference computations resolve in mere milliseconds at production capacity.

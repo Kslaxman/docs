@@ -1,0 +1,44 @@
+---
+title: "Model Training & Evaluation"
+description: "Iterative benchmarking of LightGBM, XGBoost against rigorous test splits and baseline metrics."
+---
+
+# Model Training & Evaluation
+
+Moving from clean features to functional prediction weights involves complex partitioning and optimization. `06model_training.ipynb` details the primary pipeline constructed around Tree-Based Architectures (XGBoost, LightGBM) prior to moving to final deep learning states.
+
+## Evaluation Targets
+Our system trains specialized predictors for several distinct targets:
+- **T1**: Citywide holistic hourly demand (Regression)
+- **T3**: Per-H3-Cell microscopic demand (Regression)
+- **T2 & T4**: Driver Repositioning and Surge Alert Systems (Binary Classification)
+
+## The Train/Validation/Test Split Scheme
+
+Given the temporal dependency of the dataset, random train-test splitting (K-Fold CV) guarantees data leakage from the "future" to the "past".
+We enforce a strict chronological partitioning:
+- **Train Window**: E.g., Dec 1 - Dec 22
+- **Validation Window**: E.g., Dec 23 - Dec 27 (Handling unique conditions like Christmas Day)
+- **Test Window**: E.g., Dec 28 - Jan 1 (For absolute zero-leak validation modeling against the notoriously difficult NYE anomaly)
+
+## Gradient Boosting Benchmarks
+
+### XGBoost vs LightGBM
+Both algorithms form our core baseline benchmarks:
+- **XGBoost**: Trained for absolute precision focusing on highly engineered lag metrics.
+- **LightGBM**: Evaluated specifically because of its internal Leaf-Wise growth strategy resulting in dramatically faster categorical handling and sub-millisecond production inference.
+
+### Optuna Hyperparameter Optimization
+Neither model is run on default parameters alone. We instantiated **Optuna** studies to aggressively probe hyperparameter space:
+- Searching for optimal Depth, Learning Rate, Tree constraints, and Alpha regularizations.
+- Post-training, Optuna visualization highlights that historically lagged trip counts overwhelmingly influence tree splits over any secondary engineered dimension.
+
+## Model Evaluation Matrices
+
+We score and benchmark our candidates uniformly using automated evaluation tracking.
+<img className="rounded-xl shadow-lg border border-gray-200 dark:border-gray-800" src="../assets/images/model_performance.png" alt="Model Performance Dashboard" />
+
+### Evaluation Metrics Evaluated:
+- **MAE** & **RMSE**: To penalize massive deviations on high-density cells while optimizing general ride scale.
+- **R-Squared Score**: For comparing model fit variance across wildly differing geographical zones.
+- **Inference Latency**: Strict evaluation requiring predictions to yield under a rigid millisecond latency threshold for real-time app compliance.

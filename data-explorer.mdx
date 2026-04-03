@@ -1,0 +1,22 @@
+---
+title: "Data Explorer Dashboard"
+description: "The interactive interface for monitoring, slicing, and investigating processed TNC records."
+---
+
+# Data Explorer
+
+The Streamlit Executive Dashboard includes the **Data Explorer** tab, a robust tool enabling direct interrogation of the parsed and validated Ride Demand dataset without needing to query raw Parquet files via code.
+
+<img className="rounded-xl shadow-lg border border-gray-200 dark:border-gray-800" src="../assets/images/data_explorer.png" alt="In-Depth Data Explorer" />
+
+## Empowering Executive Data Discovery
+
+Rather than relying purely on pre-compiled reports, the Data Explorer acts as a dynamic BI tool. 
+
+### Core Interface Features
+1. **Timeframe Slicing**: Using interactive sliders and date-pickers, users can drill down into specific hours or days (e.g., isolating a blizzard event or major holiday).
+2. **Spatial Feature Filtering**: Filtering logic to view demand isolated by specific community areas or targeted H3 Hexagonal subsets.
+3. **Threshold Queries**: Ability to filter the dataset to only display extreme outliers - such as trips exceeding maximum standard fare boundaries or massive geographical distances.
+
+### The Underlying Engine
+The backend of this page relies on the cached, memory-optimized Parquet reads we finalized in `01data_cleaning.ipynb`. The UI dynamically calculates aggregates, mean distribution thresholds, and correlation subsets depending on user input instantaneously, powered by Streamlit's @st.cache_data mechanics to maintain fluid rendering even over millions of rows.

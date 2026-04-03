@@ -1,0 +1,30 @@
+---
+title: "Map Visualizations"
+description: "Geospatial analyses and PyDeck visualizations of ride hailing points across Chicago."
+---
+
+# Map Visualizations
+
+Understanding spatial demand visually requires mapping algorithms that can seamlessly handle millions of GPS coordinates without completely stalling the graphics rendering engine. File `03map_visualizations.ipynb` covers our exploration of various dynamic web-mapping techniques.
+
+## High-Density Coordinate Plotting
+
+### Demand Heatmaps
+Our core visualization involves mapping a smooth gradient heatmap representing pickup density for millions of rides.
+- We leverage `Folium` and `PyDeck` to draw accurate heat layers.
+- The map includes a color legend explaining intensity levels, scaling from "cool" low-activity suburban zones directly into the intensely active "hot" downtown zones over the Loop.
+
+### Dynamic Temporal Views
+Demand clusters shift based on temporal variables. We built iterative visualizations including:
+- **Hourly Heatmap Cycling**: Maps rendered through a time-slider looping all 24 hours of the day.
+- **Weekday vs. Weekend Heatmaps**: Revealing clear geographical displacements. Weekdays center entirely on commercial zones; Weekends diffuse heavily into nightlife localized bars and northern residential districts.
+
+<img className="rounded-xl shadow-lg border border-gray-200 dark:border-gray-800" src="../assets/images/live_demand_map.png" alt="Live Spatial Demand Map" />
+
+## Spatial Context Additives
+Alongside standard plotting, the maps dynamically display calculated aggregates:
+- We inject custom HTML Context Boxes (`add_context_box`) on the rendering canvas. These floating UIs output live statistical facts (average fares, trip counts, active duration clusters) specifically scoped to the geometry bounded on the screen.
+
+### High-Fidelity Scatter Mapping
+While heatmaps are extremely advantageous for finding spatial anomalies, they act as smoothing metrics. 
+To preserve local variance, we implemented Scatter Maps that process downsampled clusters (~500,000 trips) plotting every single pickup as a discrete, color-coded node based on the time of day, thereby eliminating spatial dilution.

@@ -1,0 +1,36 @@
+---
+title: "Data Cleaning Pipeline"
+description: "Ingesting, validating, and optimizing raw Transportation Network Provider (TNP) data for the Chicago Ride Demand model."
+---
+
+# Data Cleaning Pipeline
+
+The foundation of any high-performing machine learning model is clean, reliable data. For the **Chicago Ride Demand Forecasting** project, we process over 7 million raw observations from the Chicago Data Portal's Transportation Network Providers (TNP) dataset. 
+
+This deep-dive explains the methodical steps taken in `01data_cleaning.ipynb` to sanitize the raw feeds and prepare them for spatial aggregation.
+
+## 1. Column Standardization
+Raw feeds often lack naming consistency. The very first step involves standardizing the column taxonomy to snake_case and dropping unneeded geospatial point artifacts.
+Columns like `Trip ID`, `Pickup Centroid Location`, and `pct_time_chicago` were stripped out to reduce memory footprint since latitude and longitude coordinates are inherently preserved.
+
+## 2. Data Type Corrections
+TNP data frequently misinterprets numerical features upon CSV or JSON ingestion.
+- **Currency Columns** (`Fare`, `Tip`, `Additional Charges`): Initially parsed as strings or generic objects, these fields are coerced into strict `float64` elements.
+- **Percentage Metrics**: Any fractional string metric is stripped of text parameters and cast into bounded float distributions.
+
+## 3. Dealing with Temporal Noise
+Accurate forecasting requires precise `DateTime` indexing. The `trip_start_timestamp` and `trip_end_timestamp` fields are cast to native `pd.to_datetime` objects. 
+We strictly bound and verify the date ranges to ensure no errant "future" rides or missing historical chunks poison the time-series continuum.
+
+## 4. Null Imputation & Row Pruning
+Not all missing data can be logically imputed without injecting bias.
+- **Spatial Nulls**: Any ride without a valid `pickup_centroid_latitude` or `pickup_centroid_longitude` is strictly dropped. This is non-negotiable since spatial clustering (H3 binning) relies entirely on these coordinates.
+- **Duplicate Records**: Identifying duplicate `trip_id` hash values and dropping exact repeated rows prevents demand inflation in specific micro-regions.
+
+## 5. Outlier Detection
+We filter outliers based on physically impossible trip logics:
+- **Duration Constraints**: Trips taking over physically acceptable limits without matching spatial movement are flagged.
+- **Distance Spikes**: Extreme mileage values clustered in highly condensed geographical bounds are smoothed or pruned using interquartile range (IQR) rules.
+
+## 6. Memory Optimization
+Processing million-row datasets in pandas can crash standard computing nodes. The pipeline finalizes the cleaning by enforcing strict physical types (`float32` where precision allows, `int32` for categorical IDs, `category` for string groups). This brings the active RAM memory footprint down drastically before exporting the pristine dataset to a serialized `.parquet` format for the next phase.

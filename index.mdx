@@ -1,0 +1,44 @@
+---
+title: Chicago Ride Demand Forecasting
+description: Predicting where and when people will need rides in Chicago using AI, historical trip data, and weather.
+---
+
+## Project Overview
+
+This system is an end-to-end MLOps pipeline and interactive interface that forecasts ride-hailing demand across Chicago. Designed for executive monitoring and live prediction, it processes over **7 million historical observations** and applies sub-kilometer spatial binning using Uber's H3 framework.
+
+### Key Capabilities
+
+- **Resolution 8 Spatial Granularity**: Precise demand monitoring at the sub-kilometer hexagonal level across the entire city.
+- **Advanced Deep Learning**: Built around Google's Temporal Fusion Transformer (TFT) with 48-hour historical context windows.
+- **Multi-Algorithm Benchmarking**: Continuous evaluation of TFT alongside XGBoost and LightGBM architectures.
+- **Ultra-Low Latency**: Sub-5ms API inference latency supporting spatial clustering and vectorized batch processing.
+
+## Executive Dashboard Features
+
+### 1. Spatial Demand Analysis
+Visualize live and historical spatial demand across Chicago. This interactive geospatial tool maps high-density areas natively with H3 indices using PyDeck map layers. 
+
+### 2. Model Performance & Benchmarking
+Track the true power of the production models. The dashboard exposes dynamic metrics like Model R^2, accuracy metrics, and inference latency allowing data scientists to actively benchmark TFT vs. Tree-Based approaches.
+
+### 3. Demand Forecasting
+Generate granular future predictions. Input coordinates or address, specify times, and receive instant visualizations on estimated ride-hailing demand alongside confidence intervals. 
+
+### 4. Data Explorer
+Drill directly into the cleaned dataset registry. Filter data by timeframe, locations, demand thresholds, and weather conditions prior to model ingest.
+
+### 5. System Monitoring
+View backend operational metrics over time. Track memory consumption, API request latency, API health metrics, and data pipeline uptime all from a unified operations window.
+
+## Local Deployment & Usage
+
+### Running Locally with Docker
+The entire project can be scaled and run locally within Docker containers. Requirements: Docker daemon, Docker Compose.
+
+```bash
+git clone https://github.com/your-org/chicago-ride-demand.git
+cd chicago-ride-demand
+docker compose up -d --build
+```
+> **Ports:** FastAPI Gateway runs on `localhost:8000`. Streamlit Executive UI runs on `localhost:8501`.

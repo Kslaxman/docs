@@ -1,0 +1,27 @@
+---
+title: "H3 Spatial Binning Analysis"
+description: "Aggregating scattered ride coordinates into uniform Uber H3 hexagonal cells for robust machine learning."
+---
+
+# H3 Spatial Binning Analysis
+
+Models struggle with raw continuous spatial coordinates (`latitude`, `longitude`) because infinite coordinate precision causes catastrophic sparsity. We solve this dimensionality curse using Uber's open-source **H3 Hexagonal Grid System** as documented in `04h3_analysis.ipynb`.
+
+## The Dimensionality Problem
+Chicago contains over 600 square kilometers of surface area. Forecasting demand on arbitrary, unconstrained points is mathematically intractable. Furthermore, standard zipcode boundaries are politically drawn, irregular in shape, and lead to unequal analytical distribution (the "Modifiable Areal Unit Problem").
+
+## Implementing Uber's H3 Framework
+### Why Hexagons?
+H3 maps the spherical earth using a hierarchical hexagon index. Hexagons guarantee an equidistant transition to all neighbor cells, preventing edge distortion that plagues traditional rectangular lat/lon grids.
+
+### Choosing the Resolution
+We evaluated various H3 Resolutions and finalized on **Resolution 8 (Res 8)**.
+- Each Res 8 cell represents roughly **0.74 square kilometers**.
+- This grants the ideal balance: the area is narrow enough to give deeply granular forecasts (identifying specific street corridors or transit stations), yet wide enough to prevent sparse, zero-trip cells during off-peak hours.
+
+## Binning & Aggregation Logic
+1. **Index Assignment**: Every single cleaned ride coordinate pair represents a point in space. Using the `h3` library, we process the coordinates and identify its encapsulating H3 Index ID.
+2. **Cell Aggregation**: The continuous data is then aggregated (`groupby`). We sum trip volumes per cell per hour. What used to be individual trips is successfully compressed into a rigid spacetime metric: `[h3_index] + [Time_Bucket] = Demand_Count`.
+3. **GeoJSON Processing**: To feed back into visual interfaces, we wrote dynamic parser functions (`h3_to_geojson`) to dynamically invert the H3 string IDs into geo-bounded polygons for live heat mapping tools like Streamlit.
+
+By transforming irregular lat/lon points into fixed hexagonal nodes, we successfully created the strict localized scaffolding our Temporal Fusion Transformer relies on.
